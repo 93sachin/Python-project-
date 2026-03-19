@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Dating App - Find Your Partner</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Find Your Perfect Match ❤️</h1>
+        <form id="locationForm">
+            <label for="location">Enter Your Location:</label>
+            <input type="text" id="location" name="location" required>
+            <button type="submit">Find Partners</button>
+        </form>
+
+        <div id="partners" class="partners-container"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
