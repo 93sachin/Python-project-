@@ -5,7 +5,12 @@ import seaborn as sns
 
 st.title("🚗 Electric Vehicle Data Analysis Dashboard")
 
-file = st.file_uploader("Upload CSV", type=["csv"])
+file = st.file_uploader("Upload CSV")
+
+if file is not None:
+    data = pd.read_csv(file)
+else:
+    data = pd.read_csv("Electric_Vehicle_Population_Data.csv")
 
 if file is not None:
     data = pd.read_csv(file)
