@@ -13,8 +13,11 @@ if file is not None:
     st.subheader("📊 Raw Data")
     st.write(data.head())
 
-    st.subheader("📌 Dataset Description")
+    st.subheader("📌 Dataset Info")
     st.write(data.describe())
+
+    st.subheader("❌ Missing Values")
+    st.write(data.isnull().sum())
 
     # Cleaning
     data = data.dropna(subset=['Model Year','Make','Model','County','City','State'])
@@ -47,17 +50,30 @@ if file is not None:
     trend = data['Model Year'].value_counts().sort_index()
     st.line_chart(trend)
 
-    # 🔥 Histogram
+    # 🔥 Electric Range Histogram
     st.subheader("📊 Electric Range Distribution")
     fig2, ax2 = plt.subplots()
     sns.histplot(data['Electric Range'], bins=30, kde=True, ax=ax2)
     st.pyplot(fig2)
+
+    # 🔥 KDE Plot
+    st.subheader("📉 Density Plot (Model Year)")
+    fig3, ax3 = plt.subplots()
+    sns.kdeplot(data=data, x='Model Year', fill=True, ax=ax3)
+    st.pyplot(fig3)
 
     # 🔥 Heatmap
     st.subheader("🔥 Correlation Heatmap")
     numeric_data = data[['Model Year','Electric Range']]
     corr = numeric_data.corr()
 
-    fig3, ax3 = plt.subplots()
-    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax3)
-    st.pyplot(fig3)
+    fig4, ax4 = plt.subplots()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax4)
+    st.pyplot(fig4)
+
+    # 🔥 Boxplot
+    st.subheader("📦 Electric Range by Brand")
+    fig5, ax5 = plt.subplots()
+    sns.boxplot(data=data[data['Electric Range'] > 0], x='Make', y='Electric Range', ax=ax5)
+    plt.xticks(rotation=45)
+    st.pyplot(fig5)
