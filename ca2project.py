@@ -2,146 +2,196 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-#loading dataset
-data=pd.read_csv("C:\\Users\\dell\\Downloads\\Electric_Vehicle_Population_Data_30000.csv")
-print(data)
+
+# Loading dataset
+dt=pd.read_csv("C:\\Users\\HP\\OneDrive\\Desktop\\toolbox\\Electric_Vehicle_Population_Data1.csv",encoding="unicode_escape")
+print(dt)
+
 #Exploring dataset
-print("Information: \n",data.info())
-print("Description: \n",data.describe())
+print("Information: \n",dt.info())
+print("Description: \n",dt.describe())
+
 #Handling Missing Values
-print("missing values ",data.isnull().sum())
-data = data.dropna(subset=['Model Year', 'Make', 'Model', 'County', 'City', 'State', 'Electric Vehicle Type', 'Base MSRP', 'Legislative District', 'DOL Vehicle ID', 'Vehicle Location', 'Electric Utility', '2020 Census Tract'])
-data['Electric Range'] = data['Electric Range'].fillna(0)
-data['Postal Code'] = data['Postal Code'].fillna(0)
-data['Clean Alternative Fuel Vehicle (CAFV) Eligibility'] = data['Clean Alternative Fuel Vehicle (CAFV) Eligibility'].fillna("Unknown")
-print("missing values ",data.isnull().sum())
+print("Missing values before handling:\n", dt.isnull().sum())
+dt = dt.dropna(subset=['Model', 'County', 'City', 'State', 'Postal Code', 'Electric Vehicle Type', 'Base MSRP', 'Legislative District', 'DOL Vehicle ID', 'Vehicle Location', 'Electric Utility', '2020 Census Tract'])
+dt['Electric Range'] = dt['Electric Range'].fillna(0)
+dt['Base MSRP'] = dt['Base MSRP'].fillna(0)
+dt['Clean Alternative Fuel Vehicle (CAFV) Eligibility'] = dt['Clean Alternative Fuel Vehicle (CAFV) Eligibility'].fillna("Unknown")
+print("missing values ",dt.isnull().sum())
+
 #remove duplicate rows
-data=data.drop_duplicates()
-print(data)
+dt=dt.drop_duplicates()
+print(dt)
+
 #Basic operation Performed
-print("1st 10 rows of Dataset: \n",data.head(10))
-print("1st 10 rows of Dataset: \n",data.tail(10))
-print("Shape of Dataset: \n",data.shape)
-print("Column of Dataset: \n",data.columns)
-print("Datatype of Dataset: \n",data.dtypes)
-data.to_csv("cleaned_dataset.csv", index=False)
+print("1st 12 rows of Dataset: \n",dt.head(12))
+print("1st 12 rows of Dataset: \n",dt.tail(12))
+print("Shape of Dataset: \n",dt.shape)
+print("Column of Dataset: \n",dt.columns)
+print("Datatype of Dataset: \n",dt.dtypes)
+dt.to_csv("cleaned_dataset.csv", index=False)
 print("New Dataset Succesfully")
+
+# Remove the column from given dataset 
+print(dt.drop(['Electric Utility','2020 Census Tract'],axis=1,inplace=True))
+print("Information: \n",dt.info())
+
+# change the column
+print(dt.columns)
+dt.columns = dt.columns.str.strip()
+dt.rename(columns={'Electric Vehicle Type': 'EVT'},inplace=True)
+print(dt.columns)
+print(dt.columns)
+dt.columns = dt.columns.str.strip()
+dt.rename(columns={'Legislative District': 'LD'},inplace=True)
+print(dt.columns)
+
+# Clean column names
+dt.columns = dt.columns.str.strip()
+
 #find top EV locations
-data = data.dropna(subset=['City', 'County', 'Postal Code']) #any missing values
+dt = dt.dropna(subset=['City', 'County', 'Postal Code']) #any missing values
+
 #Top 10 cities with most evs
-top_cities = data['City'].value_counts().head(10)
+top_cities = dt['City'].value_counts().head(10)
 print("Top 10 Cities:\n", top_cities)
-#Top 10 countries with most evs
-top_counties = data['County'].value_counts().head(10)
-print("\nTop 10 Counties:\n", top_counties)
-#Top 10 ZIP Codes with the Most EVs
-top_zipcodes = data['Postal Code'].value_counts().head(10)
-#plot barplot
-top_cities_data = top_cities.reset_index()
-top_cities_data.columns = ['City', 'EV_Count']
-plt.figure(figsize=(8,5))
-sns.barplot(data=top_cities_data, x='EV_Count', y='City', hue='City', palette='viridis', legend=False)
-plt.title('Top 10 Cities by EV Registrations')
-plt.xlabel('Number of EVs')
-plt.ylabel('City')
-plt.show()
-print("\nTop 10 ZIP Codes:\n", top_zipcodes)
-#proportions of different EV types
-data=data.dropna(subset=['Electric Vehicle Type'])
-ev_type_counts =data ['Electric Vehicle Type'].value_counts()
-print(ev_type_counts)
-#plot countplot
-plt.figure(figsize=(8,5))
-sns.countplot(data=data, x='Electric Vehicle Type')
-plt.title('Distribution of Electric Vehicle Types')
-plt.xlabel('EV Type')
-plt.ylabel('Count')
-plt.xticks(rotation=45)
-plt.show()
-#Top EV brands
-top_brands = data['Make'].value_counts().head(10)
-print("Top 10 EV Brands:\n", top_brands)
-#plot barplot
-brand_data = top_brands.reset_index()
-brand_data.columns = ['Make', 'Count']
-plt.figure(figsize=(8,5))
-sns.barplot(data=brand_data, x='Count', y='Make', hue='Make', palette='magma', legend=False)
-plt.title('Top 10 EV Brands by Registration')
-plt.xlabel('Number of Vehicles')
-plt.ylabel('Brand')
-plt.show()
-#Top EV Models
-top_models = data['Model'].value_counts().head(10)
-print("Top 10 EV Models:\n", top_models)
-#plot barplot
-model_data = top_models.reset_index()
-model_data.columns = ['Model', 'Count']
-plt.figure(figsize=(8,5))
-sns.barplot(data=model_data, x='Count', y='Model', hue='Model', palette='bright', legend=False)
-plt.title('Top 10 EV Models by Registration')
-plt.xlabel('Number of Vehicles')
-plt.ylabel('Model')
-plt.show()
-#EV Adoption Trends by Model Year
-data = data.dropna(subset=['Model Year'])
-ev_trends_by_year = data['Model Year'].value_counts().sort_index()
-print("EV Registrations by Model Year:\n", ev_trends_by_year)
-#plot lineplot
-plt.figure(figsize=(10,6))
-sns.lineplot(x=ev_trends_by_year.index, y=ev_trends_by_year.values, marker='o', color='green')
-plt.title('EV Registrations by Model Year')
-plt.xlabel('Model Year')
-plt.ylabel('Number of Registrations')
-plt.grid(True)
-plt.show()
-#Kde plot 
+
+# Countplot for LD
 plt.figure(figsize=(10, 6))
-sns.kdeplot(data=data, x='Model Year', fill=True, color='green', linewidth=2)
-plt.title("Distribution of EV Registrations Across Model Years", fontsize=14)
-plt.xlabel("Model Year")
-plt.ylabel("Density")
+sns.countplot(x='Model Year', hue='Model Year', data=dt, palette='coolwarm', legend=False)
+plt.title("Count Plot")
+plt.show()
+
+# Scatterplot for Age vs Salary 
+sns.scatterplot(x='Electric Range', y='LD', data=dt, hue='LD', palette='coolwarm')
+plt.title("Scatter Plot")
+plt.show()
+
+# Select a subset of data with fewer unique cities and postal codes
+top_cities = dt['City'].value_counts().nlargest(10).index  # Top 10 cities
+filtered_data = dt[dt['City'].isin(top_cities)]
+
+#select a numerical column
+column='LD'
+plt.figure(figsize=(8,5))
+sns.boxplot(x=dt[column])
+plt.title("Boxplot for outliers Detection")
+
+#The distribution is slightly skewed left
+Q1=dt[column].quantile(0.25)
+print('Q1:',Q1)
+Q3=dt[column].quantile(0.75)
+print('Q3:',Q3)
+IQR=Q3-Q1
+print('IQR:',IQR)
+
+lower_bound=Q1-1.5*IQR
+print('lower bound:',lower_bound)
+upper_bound=Q3+1.5*IQR
+print('upper bound:',upper_bound)
+
+# Identifying outliers
+outliers = dt[(dt[column] < lower_bound) | (dt[column] > upper_bound)]
+print("Outliers detected:\n",outliers)
+
+# Boxplot of DOL Vehicle ID
+plt.figure(figsize=(8, 5))
+sns.boxplot(x=dt['DOL Vehicle ID'], color='teal')
+plt.title("Boxplot of DOL Vehicle ID")
+plt.xlabel("DOL Vehicle ID")
 plt.grid(True)
 plt.show()
-# correlation matrix heatmap
-numeric_data = data[['Model Year', 'Electric Range', 'Legislative District', 'Postal Code']]
-# Compute correlation matrix
-corr = numeric_data.corr()
-# Plot heatmap
-plt.figure(figsize=(8, 6))
-sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
-plt.title("Correlation Matrix Heatmap")
+
+# Distribution of Electric Range
+plt.figure(figsize=(8, 5))
+sns.histplot(dt['Electric Range'], bins=30, kde=True, color='purple')
+plt.title("Distribution of Electric Range")
+plt.xlabel("Electric Range")
+plt.ylabel("Frequency")
+plt.grid(True)
+plt.show()
+
+# City-wise EV Count (Top 10)
+top_cities = dt['City'].value_counts().head(10)
+plt.figure(figsize=(10, 6))
+sns.barplot(x=top_cities.values, y=top_cities.index, palette='magma')
+plt.title("Top 10 Cities with Most EVs")
+plt.xlabel("Number of EVs")
+plt.ylabel("City")
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.show()
+
+# Fill missing numerical values with 0 and categorical with 'Unknown'
+dt['Electric Range'] = dt['Electric Range'].fillna(0)
+dt['Base MSRP'] = dt['Base MSRP'].fillna(0)
+dt['Clean Alternative Fuel Vehicle (CAFV) Eligibility'] = dt['Clean Alternative Fuel Vehicle (CAFV) Eligibility'].fillna("Unknown")
+
+# Drop rows with missing critical values
+dt.dropna(subset=['Model', 'County', 'City', 'Postal Code', 'EVT', 'Base MSRP'], inplace=True)
+
+# Drop duplicates
+dt.drop_duplicates(inplace=True)
+
+# Create correlation heatmap for numeric columns
+plt.figure(figsize=(10, 6))
+sns.heatmap(dt.corr(numeric_only=True), annot=True, cmap='coolwarm')
+plt.title("Correlation Heatmap")
+plt.show()
+
+# Pairplot for numerical features
+num_cols = dt.select_dtypes(include=['int64', 'float64']).columns
+sns.pairplot(dt[num_cols])
+plt.suptitle("Pairplot of Numerical Features", y=1.02)
+plt.show()
+
+# Barplot for top 10 Postal Codes
+top_postal = dt['Postal Code'].value_counts().head(10)
+plt.figure(figsize=(10, 5))
+sns.barplot(x=top_postal.index, y=top_postal.values, palette='magma')
+plt.title("Top 10 Postal Codes")
+plt.ylabel("Count")
+plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
-# combinations of numeric features scatterplot & pair plot
-sample_data = numeric_data.sample(n=500, random_state=42)  # sample 500 rows
-# pair plot
-sns.pairplot(sample_data, diag_kind='kde', corner=True)
-plt.suptitle("Pair Plot of Numeric Features", y=1.02)
-plt.show()
-#boxplot by electric range distribution
-plt.figure(figsize=(12,6))
-sns.boxplot(data=data[data['Electric Range'] > 0], x='Make', y='Electric Range')
+
+# Boxplot of Electric Range by City (top 10 cities)
+top_cities = dt['City'].value_counts().head(10).index
+filtered_dt = dt[dt['City'].isin(top_cities)]
+plt.figure(figsize=(12, 6))
+sns.boxplot(x='City', y='Electric Range', data=filtered_dt)
+plt.title("Electric Range by City")
 plt.xticks(rotation=45)
-plt.title('Electric Range Distribution by make')
-plt.show()
-#histogram by electric range distribution
-plt.figure(figsize=(8,5))
-sns.histplot(data['Electric Range'], bins=30, kde=True, color='skyblue')
-plt.title('Distribution of Electric Range ')
-plt.xlabel('Electric Range (miles)')
-plt.ylabel('Frequency')
+plt.tight_layout()
 plt.show()
 
+# EV Type Distribution in Top 5 Counties
+top5_counties = dt['County'].value_counts().head(5).index
+filtered = dt[dt['County'].isin(top5_counties)]
+plt.figure(figsize=(13, 9))
+sns.countplot(data=filtered, x='County', hue='EVT', palette='Set1')
+plt.title("EV Type Distribution in Top 5 Counties")
+plt.xlabel("County")
+plt.ylabel("Count")
+plt.legend(title='EV Type')
+plt.show()
 
+# Most Popular EV Models
+top_models = dt['Model'].value_counts().head(10)
+plt.figure(figsize=(15, 10))
+sns.barplot(x=top_models.values, y=top_models.index, palette='Accent')
+plt.title("Top 10 Most Popular EV Models")
+plt.xlabel("Count")
+plt.ylabel("Model")
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.show()
 
+# Average Electric Range by Model (Top 10)
+avg_range_by_model = dt.groupby('Model')['Electric Range'].mean().sort_values(ascending=False).head(10)
+plt.figure(figsize=(12, 6))
+sns.barplot(x=avg_range_by_model.values, y=avg_range_by_model.index, palette='cool')
+plt.title("Average Electric Range by Top EV Models")
+plt.xlabel("Average Electric Range")
+plt.ylabel("Model")
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.show()
 
-
-
-                      
-                 
-
-
-
-
-
-      
